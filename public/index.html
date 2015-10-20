@@ -10,7 +10,14 @@
 	<title>Contacts</title>
 </head>
 <body>
-
+	<nav ng-controller="NavCtrl">
+		<span ng-show="currentUser">
+			<a ui-sref="profile">Profile</a> |
+			<a ui-sref="contacts">Contacts</a> |
+			<a ng-click="logout()">Logout</a> <br/>
+			<p>Welcome, {{currentUser.firstName}}</p>
+		</span>
+	</nav>
 	<div ui-view></div>
 
 	<script src="bower_components/angular/angular.min.js"></script>
@@ -18,9 +25,10 @@
 	<script src="app/app.module.js"></script>
 	<script src="app/app.router-config.js"></script>
 	<script src="app/contacts/contacts.controller.js"></script>
-
-	<!--
+	<script src="app/home/home.controller.js"></script>
+	<script src="app/login/login.controller.js"></script>
+	<script src="app/profile/profile.controller.js"></script>
 	<script src="app/register/register.controller.js"></script>
-	<sciprt src="app/contacts/contacts.controller.js"></script>-->
+	<script src="app/navigation.controller.js"></script>
 </body>
 </html>
