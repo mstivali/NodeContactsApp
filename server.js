@@ -22,8 +22,8 @@ var UserSchema = new mongoose.Schema({
 
 var UserModel = mongoose.model('UserModel', UserSchema);
 
-//var admin = new UserModel({username:'alice', password:'alice',firstName:'Alice', lastName:'Wonderland', role:['admin']});
-//var student = new UserModel({username:'bob', password:'bob',firstName:'Bob', lastName:'Dole', role:['student']});
+//var admin = new UserModel({username:'mstivali', password:'matt',firstName:'Matthew', lastName:'Stivali', roles:['admin']});
+//var student = new UserModel({username:'shelshock', password:'shel',firstName:'Shelley', lastName:'Rush', roles:['student']});
 //admin.save();
 //student.save();
 
@@ -99,6 +99,20 @@ app.post("/register", function(req, res) {
 				res.json(user);
 			});
 		});
+	});
+});
+
+var auth = function(req, res, next) {
+	if(!req.isAuthenticated())
+		res.sendStatus(401)
+	else
+		next();
+};
+
+
+app.get('/rest/users', auth, function(req, res) {
+	UserModel.find(function(err, users) {
+		res.json(users);
 	});
 });
 
