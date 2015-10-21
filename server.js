@@ -7,7 +7,8 @@ var multer = require('multer');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var mongoose = require('mongoose');
-var mdb = mongoose.connect('mongodb://localhost/test');
+//var mdb = mongoose.connect('mongodb://localhost/test');
+var mdb = mongoose.connect('mongodb://MongoDevDb:iSeO5A2Nq.wdCWSAHfkofZqU93sJ5N6y5J5y.tBRk.E-@ds048878.mongolab.com:48878/MongoDevDb');
 
 //---Dependency Injections---//
 var app = express();

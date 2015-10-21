@@ -3,7 +3,7 @@
 
 	angular.module('contactsApp').controller('Contacts', Contacts);
 
-	function Contacts($scope, $http, $rootScope) {
+	function Contacts($scope, $http, $rootScope, $state) {
 		console.log("Hello world from controller");
 
 		refresh();
@@ -42,6 +42,7 @@
 			});
 		};
 
+
 		$scope.deselect = function() {
 			clearContact();
 		}
@@ -52,15 +53,19 @@
 
 
 		function refresh() {
-			$http.get('/contactlist/' + $rootScope.currentUser._id).success(function(response) {
+			$http.get('/loggedin').success(function(response) {
 				console.log(response);
-				$scope.contactList = response;
+				if(response === '0') {
+					$rootScope.errorMessage = 'Session expired, You need to log in.';
+					$state.go('login');
+				} else {
+					$rootScope.currentUser = response;
+					$http.get('/contactlist/' + $rootScope.currentUser._id).success(function(response) {
+						console.log(response);
+						$scope.contactList = response;
+					});
+				}
 			});
 		}
-
-	
-
 	}
-
-
 })();
