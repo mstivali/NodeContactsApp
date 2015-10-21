@@ -1,40 +1,17 @@
+//---NodeJS Library Imports---//
+var express = require('express');
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+var bodyParser = require('body-parser');
+var multer = require('multer');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
-
 var mongoose = require('mongoose');
 var mdb = mongoose.connect('mongodb://localhost/test');
 
-var express = require('express');
+//---Dependency Injections---//
 var app = express();
-
-//Tells the server to look for our static files 
-//containing html and angular app files
 app.use(express.static(__dirname + "/public"));
-
-var UserSchema = new mongoose.Schema({
-	username:String,
-	password:String,
-	email:String,
-	firstName:String,
-	lastName:String,
-	roles:[String]
-});
-
-var UserModel = mongoose.model('UserModel', UserSchema);
-
-// var admin = new UserModel({username:'mstivali', password:'matt',firstName:'Matthew', lastName:'Stivali', roles:['admin']});
-// var student = new UserModel({username:'shelshock', password:'shel',firstName:'Shelley', lastName:'Rush', roles:['student']});
-// admin.save();
-// student.save();
-
-var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
-
-
-var bodyParser = require('body-parser');
-var multer = require('multer');
-
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(multer());
@@ -43,9 +20,7 @@ app.use(cookieParser());
 app.use(passport.initialize());
 app.use(passport.session());
 
-var mongojs = require('mongojs');
-var db = mongojs('contactlist',['contactlist']);
-
+//---Passport authentication initializations---//
 passport.use(new LocalStrategy(function(username, password, done) 
 {
 	UserModel.findOne({username:username, password:password}, function(err,user) {
@@ -64,6 +39,33 @@ passport.serializeUser(function(user, done) {
 passport.deserializeUser(function(user, done) {
     done(null, user);
 });
+
+var UserSchema = new mongoose.Schema({
+	username:String,
+	password:String,
+	email:String,
+	firstName:String,
+	lastName:String,
+	roles:[String]
+});
+
+var ContactSchema = new mongoose.Schema({
+	name: String,
+	email: String,
+	number: String,
+	userId: String
+});
+
+var UserModel = mongoose.model('User', UserSchema);
+var ContactModel = mongoose.model('Contact', ContactSchema);
+
+//var admin = new UserModel({username:'mstivali', password:'matt',firstName:'Matthew', lastName:'Stivali', roles:['admin']});
+//var student = new UserModel({username:'shelshock', password:'shel',firstName:'Shelley', lastName:'Rush', roles:['student']});
+//admin.save();
+//student.save();
+
+//var contact = new ContactModel({name:'Shelley', email:'shelshockdesign@gmail.com', number:'727-667-5091', userId:'56279bd0ab143a8c099aa11c'});
+//contact.save();
 
 app.post("/login", passport.authenticate('local'), function(req, res) {
 	console.log("/login");
@@ -109,59 +111,53 @@ var auth = function(req, res, next) {
 		next();
 };
 
-
 app.get('/rest/users', auth, function(req, res) {
 	UserModel.find(function(err, users) {
 		res.json(users);
 	});
 });
 
-//tells the server to listen for a get request under the route
-//'/contactlist'
-app.get('/contactlist', function(req, res) {
-	console.log('I received a get request');
-	
-	db.contactlist.find(function(err,docs) {
-		console.log(docs);
-		res.json(docs);
+app.get('/contactlist/:userId', function(req, res) {
+	var userId = req.params.userId;
+	console.log(userId);
+	ContactModel.find({userId:userId}, function(err, contact) {
+		console.log(contact);
+		res.json(contact);
 	});
-
 });
 
-app.get('/contactlist/:id', function(req, res) {
+app.get('/contactlist/contact/:id', function(req, res) {
 	var id = req.params.id;
 	console.log(id);
-	db.contactlist.findOne({_id: mongojs.ObjectId(id)}, function(err, doc) {
-		res.json(doc);
+	ContactModel.findOne({_id: id}, function(err, contact) {
+		console.log(contact);
+		res.json(contact);
 	});
 });
 
-app.put('/contactlist/:id', function(req, res) {
+app.put('/contactlist/contact/:id', function(req, res) {
 	var id = req.params.id;
 	console.log(req.body.name);
-	db.contactlist.findAndModify(
-		{
-			query: {_id: mongojs.ObjectId(id)},
-			update: {$set: {name:req.body.name, email:req.body.email, number:req.body.number}},
-			new:true
-		}, function(err,doc){
-			res.json(doc);
-	});
-});
-
-app.post('/contactlist', function(req, res) {
-	console.log(req.body);
-	db.contactlist.insert(req.body, function(err, doc) {
+	ContactModel.findOneAndUpdate({_id:id}, req.body, function(err, doc) {
 		res.json(doc);
 	});
 });
 
-app.delete('/contactlist/:id', function(req, res) {
+app.post('/contactlist/contact', function(req, res) {
+	console.log(req.body);
+	var newContact = new ContactModel(req.body);
+	newContact.save(function(err, contact) {
+		res.json(contact);
+	});
+});
+
+app.delete('/contactlist/contact/:id', function(req, res) {
 	var id = req.params.id;
 	console.log(id);
-	db.contactlist.remove({_id: mongojs.ObjectId(id)}, function(err, doc) {
+	ContactModel.remove({_id: id}, function(err, doc){
+		if(err) res.sendStatus(500);
 		res.json(doc);
-	}); 
+	});
 });
 
 app.listen(3000);

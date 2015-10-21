@@ -3,14 +3,15 @@
 
 	angular.module('contactsApp').controller('Contacts', Contacts);
 
-	function Contacts($scope, $http) {
+	function Contacts($scope, $http, $rootScope) {
 		console.log("Hello world from controller");
 
 		refresh();
 
 		$scope.addContact = function() {
+			$scope.contact.userId = $rootScope.currentUser._id;
 			console.log($scope.contact);
-			$http.post('/contactlist', $scope.contact).success(function(response) {
+			$http.post('/contactlist/contact', $scope.contact).success(function(response) {
 				console.log(response);
 				refresh();
 				clearContact();
@@ -19,21 +20,23 @@
 
 		$scope.remove = function(id) {
 			console.log(id);
-			$http.delete('/contactlist/' + id).success(function(response) {
+			$http.delete('/contactlist/contact/' + id).success(function(response) {
 				refresh();
 			});
 		};
 
 		$scope.edit = function(id) {
 			console.log(id);
-			$http.get('/contactlist/' + id).success(function(response) {
+			$http.get('/contactlist/contact/' + id).success(function(response) {
+				console.log(response);
 				$scope.contact = response;
 			});
 		};
 
 		$scope.update = function() {
+			$scope.contact.userId = $rootScope.currentUser._id;
 			console.log($scope.contact._id);
-			$http.put('/contactlist/' + $scope.contact._id, $scope.contact).success(function(){
+			$http.put('/contactlist/contact/' + $scope.contact._id, $scope.contact).success(function(){
 				refresh();
 				clearContact();
 			});
@@ -49,7 +52,7 @@
 
 
 		function refresh() {
-			$http.get('/contactlist').success(function(response) {
+			$http.get('/contactlist/' + $rootScope.currentUser._id).success(function(response) {
 				console.log(response);
 				$scope.contactList = response;
 			});
