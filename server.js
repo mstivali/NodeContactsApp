@@ -8,7 +8,7 @@ var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var mongoose = require('mongoose');
 //var mdb = mongoose.connect('mongodb://localhost/test');
-var mdb = mongoose.connect('mongodb://MongoDevDb:iSeO5A2Nq.wdCWSAHfkofZqU93sJ5N6y5J5y.tBRk.E-@ds048878.mongolab.com:48878/MongoDevDb');
+var mdb = mongoose.connect('mongodb://matt:password123@ds041934.mongolab.com:41934/heroku_5wmtd6lw');
 
 //---Dependency Injections---//
 var app = express();
@@ -95,7 +95,7 @@ app.post("/register", function(req, res) {
 		} 
 
 		var newUser = new UserModel(req.body);
-		newUser.roles = ['student'];
+		newUser.roles = ['admin'];
 		newUser.save(function(err, user) {
 			req.login(user, function(err) {
 				if(err) {return next(err); }
