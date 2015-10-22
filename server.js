@@ -8,7 +8,7 @@ var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var mongoose = require('mongoose');
 //var mdb = mongoose.connect('mongodb://localhost/test');
-var mdb = mongoose.connect('mongodb://matt:password123@ds041934.mongolab.com:41934/heroku_5wmtd6lw');
+var db = mongoose.connect('mongodb://matt:password123@ds041934.mongolab.com:41934/heroku_5wmtd6lw');
 
 //---Dependency Injections---//
 var app = express();
@@ -161,5 +161,7 @@ app.delete('/contactlist/contact/:id', function(req, res) {
 	});
 });
 
-app.listen(3000);
-console.log("Server running on port 3000");
+
+var port = process.env.PORT || 8080; 
+app.listen(port);	
+console.log('Magic happens on port ' + port); 
